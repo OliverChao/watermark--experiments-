@@ -5,6 +5,7 @@ import (
 	"WaterMasking/util"
 	"crypto/sha1"
 	"fmt"
+	"hash"
 	"math"
 	"math/big"
 	"reflect"
@@ -12,6 +13,9 @@ import (
 	"sync"
 	"unsafe"
 )
+
+//var semaCon = 30
+//var sema = make(chan struct{}, 30)
 
 func GenerateToChan(ds []*model.Student, ch chan<- *util.ChanMetaData, wg *sync.WaitGroup) {
 
@@ -65,14 +69,13 @@ func GenerateToChan(ds []*model.Student, ch chan<- *util.ChanMetaData, wg *sync.
 			attrIndex = AttrSelect(bigFMAC, nu)
 			bitIndex = BitSelect(bigFMAC, xi)
 			if flag, metaData := isNeedUpdate(bigFirstHash, ds[r], attrIndex, bitIndex); flag {
-				//_ = metaData
 				ch <- metaData
 			}
-
 		}
 	}
 }
 
+// if it returns false, it means there is no need to update.
 func isNeedUpdate(bigFirstHash big.Int, d *model.Student, attrIndex int, bitIndex int) (bool, *util.ChanMetaData) {
 
 	// reflect may impair the whole performance
@@ -121,4 +124,33 @@ func cmpOldAndNew(old float64, bitIndex int, guess byte) (bool, float64) {
 
 	frombits := math.Float64frombits(parseUint)
 	return false, frombits
+}
+
+func getHashSum(h hash.Hash, bs ...[]byte) []byte {
+	for _, b := range bs {
+		h.Write(b)
+	}
+	return h.Sum(nil)
+}
+
+func BitSelect(fmac big.Int, xi uint) int {
+	return baseSelect(fmac, xi)
+}
+
+func TupleTest(fmac big.Int, gamma uint) bool {
+	//logrus.Info(fmac)
+	return baseSelect(fmac, gamma) == 0
+}
+
+func AttrSelect(fmac big.Int, nu uint) int {
+	return baseSelect(fmac, nu)
+}
+
+func baseSelect(z big.Int, i uint) int {
+	//logrus.Info("z is ", z.String(), " mod ", i)
+	n := big.NewInt(int64(i))
+	n.Mod(&z, n)
+	u := n.Uint64()
+	//logrus.Info("answer is ", u)
+	return int(u)
 }
