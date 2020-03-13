@@ -2,6 +2,7 @@ package service
 
 import (
 	"WaterMasking/model"
+	"WaterMasking/util"
 	"github.com/sirupsen/logrus"
 	"sync"
 )
@@ -28,3 +29,33 @@ func (srv *studentSrv) GetBatchData(offset, limit int) (ret []*model.Student) {
 }
 
 //func (srv *studentSrv) UpdateDB
+// use this method like the following
+// go service.Student.UpdateDB(ch)
+func (srv *studentSrv) UpdateDB(ch <-chan *util.ChanMetaData) (err error) {
+	srv.mutex.Lock()
+	defer srv.mutex.Unlock()
+
+	tx := db.Begin()
+	defer func() {
+		if err == nil {
+			tx.Commit()
+			logrus.Info("tx commit successfully")
+		} else {
+			tx.Rollback()
+			logrus.Error(err, "rollback...")
+		}
+	}()
+
+Loop:
+	for {
+		select {
+		case metadata, ok := <-ch:
+			if !ok {
+				break Loop
+			}
+			tx.Model(&model.Student{ID: metadata.ID}).Update(metadata.Col, metadata.NewData)
+		}
+	}
+
+	return nil
+}
