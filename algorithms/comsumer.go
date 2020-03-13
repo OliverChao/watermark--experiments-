@@ -7,6 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// This is logic code in order to understand.
+//The actual execution code is written in studentsrv.go.
 func Consumer(db *gorm.DB, ch <-chan *util.ChanMetaData) (err error) {
 	tx := db.Begin()
 	defer func() {

@@ -102,9 +102,9 @@ func isNeedUpdate(bigFirstHash big.Int, d *model.Student, attrIndex int, bitInde
 
 }
 
-//If this function returns true,
-//that means this piece of data do not need to change
-//because
+//If this function returns true, data[bitIndex] will be equal to the guess bit
+//which means it is not necessary to update this piece of data.
+//
 func cmpOldAndNew(old float64, bitIndex int, guess byte) (bool, float64) {
 
 	// change a data typed float to uint attribute to the IEEE 754
