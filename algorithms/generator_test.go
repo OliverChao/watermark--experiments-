@@ -14,12 +14,14 @@ func TestGenerateToChan(t *testing.T) {
 
 	model.FlagConfInit()
 	service.ConnectDB()
-	data := service.Student.GetBatchData(0, 1000)
-	ch := make(chan *util.ChanMetaData, 50)
+	data := service.Student.GetBatchData(0, 100000)
+	ch := make(chan *util.ChanMetaData, 30)
 	var wg = sync.WaitGroup{}
-	wg.Add(1)
+	wg.Add(2)
 	fmt.Println("go on.... core function")
-	go GenerateToChan(data, ch, &wg)
+	//go GenerateToChan(data[:1500], ch, &wg)
+	go GenerateToChan(data[:50000], ch, &wg)
+	go GenerateToChan(data[50000:], ch, &wg)
 	go service.Student.UpdateDB(ch)
 	//go func() {
 	//	con := 0

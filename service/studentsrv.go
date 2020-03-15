@@ -59,3 +59,41 @@ Loop:
 
 	return nil
 }
+
+func (srv *studentSrv) SyncWriteOneStudent(s *model.Student) {
+	srv.mutex.Lock()
+	defer srv.mutex.Unlock()
+	db.Create(&s)
+}
+
+// async code
+// the `id` must be controlled correctly by user.
+// or will arise error, say, `Duplicate entry [num] for key 'PRIMARY'`
+func (srv *studentSrv) AsyncWriteStudents(ss []*model.Student) {
+	writeStudents(ss)
+}
+
+// sync transaction lock
+func (srv *studentSrv) SyncWriteStudents(ss []*model.Student) {
+	srv.mutex.Lock()
+	defer srv.mutex.Unlock()
+	writeStudents(ss)
+}
+
+// underlying functions for writing model.Student to table
+func writeStudents(ss []*model.Student) {
+	tx := db.Begin()
+	var err error
+	defer func() {
+		if nil != err {
+			logrus.Error(err)
+			tx.Rollback()
+		} else {
+			logrus.Info("commit successfully")
+			tx.Commit()
+		}
+	}()
+	for i := range ss {
+		tx.Create(&ss[i])
+	}
+}

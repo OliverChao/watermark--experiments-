@@ -12,7 +12,7 @@ import (
 func TestVerifyData(t *testing.T) {
 	model.FlagConfInit()
 	service.ConnectDB()
-	data := service.Student.GetBatchData(0, 1000)
+	data := service.Student.GetBatchData(0, 100000)
 	ch := make(chan util.VerifyResultData, 1)
 	var wg = sync.WaitGroup{}
 	wg.Add(1)

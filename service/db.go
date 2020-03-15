@@ -19,6 +19,7 @@ func ConnectDB() {
 	}
 	logrus.Info("Connect to mysql successfully")
 
+	db.AutoMigrate(&model.Student{})
 	// some database connection configurations
 	db.DB().SetMaxIdleConns(15)
 	db.DB().SetMaxOpenConns(55)
@@ -30,4 +31,14 @@ func DisconnectDB() {
 		logrus.Error("Disconnect from database failed: " + err.Error())
 	}
 	logrus.Info("Disconnect from database successfully")
+}
+
+func DestroyAll() {
+	db.DropTableIfExists(&model.Student{})
+	db.AutoMigrate(&model.Student{})
+}
+
+func ChangeTableName(s, n string) {
+	sql := (" " + "alter table " + s + " rename to " + n + ";")[1:]
+	db.Exec(sql)
 }
