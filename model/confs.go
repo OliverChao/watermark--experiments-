@@ -17,7 +17,7 @@ type Configuration struct {
 	//currently only support mysql
 	//user:password@(localhost)/dbname?charset=utf8&parseTime=True&loc=Local
 	Server string
-	//private key
+	//private key for encryption
 	Key string
 
 	//parameters for Water Masking algorithm
@@ -25,7 +25,15 @@ type Configuration struct {
 	//FiledNames consist of the columns typed float64
 	//Wanting to more dynamic, I must to use reflect to get all the float columns
 	//This is only a research method.Consequently, I use hard-writing directly.
-	FiledNames    []string
+	FiledNames []string
+
+	//the switch controlled weather back up the source data
+	//default false, say, do not bake up.
+	BakeUp bool
+	//execution mode
+	//choice: insert or verify
+	//default: insert
+	ExecMode string
 }
 
 func FlagConfInit() {
@@ -41,8 +49,13 @@ func FlagConfInit() {
 	gamma := flag.Uint("gamma", 2, "gamma")
 	nu := flag.Uint("nu", 5, "nu")
 	xi := flag.Uint("xi", 3, "xi")
-	//filedNames := flag.
 
+	backMode := flag.Bool("back", false, "back up the source data and update it")
+
+	execMode := flag.String("exec", "insert", "choice[insert, verify]")
+
+	var fields []string
+	flag.Var(NewFieldName(&fields), "field", "float64 fields")
 	flag.Parse()
 
 	Conf = &Configuration{}
@@ -51,12 +64,16 @@ func FlagConfInit() {
 	Conf.Server = fmt.Sprintf("%s:%s@(%s:%s)/%s", *conUser, *conPassword, *conIpAddress, *conPort, *confDatabase)
 	Conf.Key = *privateKey
 
-
-	defaultFileds := []string{"Score1","Score2","Score3",
-		"Score4","Score5",}
-	var n = uint(math.Min(float64(*nu), float64(len(defaultFileds))))
-	Conf.FiledNames = ([]string{"Score1","Score2","Score3",
-		"Score4","Score5",})[:n]
+	//defaultFileds := []string{"Score1", "Score2", "Score3", "Score4", "Score5",}
+	var n = uint(math.Min(float64(*nu), float64(len(fields))))
+	Conf.FiledNames = fields[:n]
 
 	Conf.Gamma, Conf.Nu, Conf.Xi = *gamma, n, *xi
+	Conf.BakeUp = *backMode
+
+	if *execMode == "verify" {
+		Conf.ExecMode = "verify"
+	} else {
+		Conf.ExecMode = "insert"
+	}
 }

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"sync"
 	"testing"
-	"time"
 )
 
 func TestGenerateToChan(t *testing.T) {
@@ -16,13 +15,15 @@ func TestGenerateToChan(t *testing.T) {
 	service.ConnectDB()
 	data := service.Student.GetBatchData(0, 100000)
 	ch := make(chan *util.ChanMetaData, 30)
+	done := make(chan struct{})
 	var wg = sync.WaitGroup{}
 	wg.Add(2)
 	fmt.Println("go on.... core function")
 	//go GenerateToChan(data[:1500], ch, &wg)
 	go GenerateToChan(data[:50000], ch, &wg)
 	go GenerateToChan(data[50000:], ch, &wg)
-	go service.Student.UpdateDB(ch)
+
+	go service.Student.UpdateDB(ch, done)
 	//go func() {
 	//	con := 0
 	//	for metaData := range ch {
@@ -35,5 +36,6 @@ func TestGenerateToChan(t *testing.T) {
 	close(ch)
 
 	service.DisconnectDB()
-	time.Sleep(time.Second)
+	//time.Sleep(time.Second)
+	<-done
 }

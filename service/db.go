@@ -38,6 +38,10 @@ func DestroyAll() {
 	db.AutoMigrate(&model.Student{})
 }
 
+func DropTableIfExists(values ...interface{}) {
+	db.DropTableIfExists(values...)
+}
+
 func ChangeTableName(s, n string) {
 	sql := (" " + "alter table " + s + " rename to " + n + ";")[1:]
 	db.Exec(sql)

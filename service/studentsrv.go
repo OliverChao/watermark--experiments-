@@ -28,10 +28,22 @@ func (srv *studentSrv) GetBatchData(offset, limit int) (ret []*model.Student) {
 	return
 }
 
+func (srv *studentSrv) GetAllData() (ret []*model.Student) {
+	if err := db.Model(&model.Student{}).Find(&ret).Error; err != nil {
+		logrus.Error(err)
+	}
+	return
+}
+
 //func (srv *studentSrv) UpdateDB
 // use this method like the following
-// go service.Student.UpdateDB(ch)
-func (srv *studentSrv) UpdateDB(ch <-chan *util.ChanMetaData) (err error) {
+// go service.Student.UpdateDB(ch,done)
+// use  `<- done` to check weather or not the function is completed
+func (srv *studentSrv) UpdateDB(ch <-chan *util.ChanMetaData, done chan<- struct{}) (err error) {
+	defer func() {
+		done <- struct{}{}
+	}()
+
 	srv.mutex.Lock()
 	defer srv.mutex.Unlock()
 
