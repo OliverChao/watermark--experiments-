@@ -69,6 +69,8 @@ func MapRoutes() *gin.Engine {
 		c.String(200, "resume successfully...")
 	})
 
+	exp.GET("/verify", handlerFuncs.VerifyWaterMarking)
+
 	alg := engine.Group("/algorithms")
 	alg.Use(LoginCheck)
 
