@@ -5,6 +5,8 @@ import (
 	"WaterMasking/service"
 	"WaterMasking/util"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"math"
 	"sync"
 	"testing"
 )
@@ -38,4 +40,17 @@ func TestGenerateToChan(t *testing.T) {
 	service.DisconnectDB()
 	//time.Sleep(time.Second)
 	<-done
+}
+
+func Test_cmpOldAndNew(t *testing.T) {
+	old := 3.14
+	//u := *(*[]byte)(unsafe.Pointer(&old))
+	//fmt.Println(u)
+	ubits := math.Float64bits(old)
+	logrus.Info(ubits)
+	// get the binary number typed string
+	sbits := fmt.Sprintf("%b", ubits)
+	logrus.Println(sbits)
+	//bs := *(*[]byte)(unsafe.Pointer(&sbits))
+	//logrus.Info(string(bs))
 }

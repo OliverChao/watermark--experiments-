@@ -65,7 +65,19 @@ func TestChangeTableName2(t *testing.T) {
 func TestDestroyAll(t *testing.T) {
 	model.FlagConfInit()
 	ConnectDB()
+
 	DestroyAll()
+	DisconnectDB()
+}
+
+func TestSpecifyTableName(t *testing.T) {
+	model.FlagConfInit()
+	ConnectDB()
+
+	sb1 := model.StudentBack{}
+	db.Table("students").First(&sb1)
+	fmt.Println(sb1)
+
 	DisconnectDB()
 }
 

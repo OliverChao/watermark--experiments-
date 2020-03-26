@@ -35,6 +35,9 @@ func main() {
 
 func verify() {
 	start := time.Now()
+	if model.Conf.BakeUp {
+		service.ExchangeTableName()
+	}
 	data := service.Student.GetAllData()
 	ch := make(chan util.VerifyResultData, 1)
 	var wg = sync.WaitGroup{}
@@ -42,6 +45,9 @@ func verify() {
 	algorithms.VerifyData(data, &wg, ch)
 	wg.Wait()
 	fmt.Println(<-ch)
+	if model.Conf.BakeUp {
+		service.ExchangeTableName()
+	}
 	fmt.Println("verify: ", time.Since(start))
 }
 
@@ -49,6 +55,7 @@ func insert() {
 	ch := make(chan *util.ChanMetaData, 30)
 	done := make(chan struct{})
 	var wg = sync.WaitGroup{}
+	var wrWg = sync.WaitGroup{}
 
 	wg.Add(2)
 	start := time.Now()
@@ -65,18 +72,25 @@ func insert() {
 		grNum := int(math.Min(float64(model.Conf.Gamma), 3))
 		//backCh := make(chan )
 		batchSize := len(data) / grNum
-		wg.Add(grNum)
-		for i := 0; i < grNum-1; i++ {
-			go service.StudentBack.AsyncWriteStudentBacks(dataBack[batchSize*i:batchSize*(i+1)], &wg)
-		}
-		go service.StudentBack.AsyncWriteStudentBacks(dataBack[batchSize*grNum:], &wg)
-	}
 
+		wrWg.Add(grNum)
+		for i := 0; i < grNum-1; i++ {
+			go service.StudentBack.AsyncWriteStudentBacks(dataBack[batchSize*i:batchSize*(i+1)], &wrWg)
+		}
+		go service.StudentBack.AsyncWriteStudentBacks(dataBack[batchSize*(grNum-1):], &wrWg)
+	}
 	go func() {
 		wg.Wait()
 		close(ch)
 	}()
 	<-done
+	wrWg.Wait()
+
+	//exchange names between source data and generated data
+	//just for experiments.
+	if model.Conf.BakeUp {
+		service.ExchangeTableName()
+	}
 	logrus.Info("total:", time.Since(start))
 	//logrus.Info("read data: ", time.Since(readStart), "s")
 }
