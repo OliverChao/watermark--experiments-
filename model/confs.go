@@ -1,12 +1,16 @@
 package model
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"math"
 )
 
 var Conf *Configuration
+
+var VerConf map[string]string
 
 var Models = []interface{}{
 	&Student{},
@@ -37,6 +41,9 @@ type Configuration struct {
 }
 
 func FlagConfInit() {
+	verAdmin := flag.String("webadmin", "oliver", "user for web login")
+	verPass := flag.String("webpass", "toor", "pass for web login")
+
 	confDatabase := flag.String("db", "stu", "")
 	conUser := flag.String("user", "root", "database user")
 
@@ -76,4 +83,12 @@ func FlagConfInit() {
 	} else {
 		Conf.ExecMode = "insert"
 	}
+
+	VerConf = make(map[string]string, 2)
+	VerConf["user"] = *verAdmin
+	sha := sha256.New()
+	sha.Write([]byte(*verPass))
+	sum := sha.Sum(nil)
+	passwdSha256 := hex.EncodeToString(sum)
+	VerConf["password"] = passwdSha256
 }

@@ -36,6 +36,10 @@ func DisconnectDB() {
 	logrus.Info("Disconnect from database successfully")
 }
 
+func InitSourceCacheData() {
+	SourceCache.EnCached(Student.GetAllData())
+}
+
 func DestroyAll() {
 	db.DropTableIfExists(&model.Student{})
 	db.AutoMigrate(&model.Student{})

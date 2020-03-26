@@ -1,0 +1,36 @@
+.container_ {
+    height: 50px;
+    width: 250px;
+    /* left: 30%; */
+    margin: 10px auto 0 auto;
+}
+
+.search_ {
+    height: 40px;
+    width: 220px;
+    border-radius: 18px;
+    outline: none;
+    border: 1px solid #ccc;
+    padding-left: 10px;
+
+}
+
+.search_2 {
+    height: 40px;
+    width: 60%;
+    border-radius: 18px;
+    outline: none;
+    border: 1px solid #ccc;
+    padding-left: 10px;
+
+}
+.btn_ {
+
+    border: 0px; /*去边框*/
+    width: 30px; /*宽*/
+    height: 30px;/*高*/
+    background-image:url(/pan/image/topbar.png);/*背景图片*/
+    font-size: 30px;/*字体大小*/
+    color: white; /*字体颜色*/
+
+}
