@@ -86,8 +86,20 @@ func MapRoutes() *gin.Engine {
 		c.String(200, "resume successfully...")
 	})
 
-	exp.GET("/verify", handlerFuncs.VerifyWaterMarking)
+	exp.GET("/verify", func(c *gin.Context) {
+		var tables []string
+		switch service.MarkedCache.IsCached() {
+		case true:
+			tables = []string{"students", "student_backs"}
+		case false:
+			tables = []string{"students"}
+		}
+		c.HTML(http.StatusOK, "verify.html", gin.H{
+			"table": tables,
+		})
+	})
 
+	exp.POST("/verify", handlerFuncs.VerifyWaterMarking)
 	alg := engine.Group("/algorithms")
 	alg.Use(LoginCheck)
 

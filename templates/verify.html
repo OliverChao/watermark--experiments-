@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ShowData</title>
+</head>
+<body>
+
+<form action="" method="post">
+    <p>table</p>
+    <select name="table" id="verify">
+        {{range $index,$elm := .table}}
+            <option value="{{$elm}}">{{$elm}}</option>
+        {{end}}
+    </select>
+
+    <label>verify:</label>
+    <input type="submit" class="submit" value="verify"/>
+
+</form>
+<div>Test Table:</div>
+<div>{{.testTable}}</div>
+<div>MSG:</div>
+<div>{{.result.Msg}}</div>
+<br>
+
+<div>Significant Level:</div>
+<div>{{.result.SignificantLevel}}</div>
+<br>
+
+<div>Verification Count:</div>
+<div>{{.result.TotalCount}}</div>
+<br>
+
+<div>Match Count:</div>
+<div>{{.result.MatchCount}}</div>
+<br>
+
+</body>
+</html>
