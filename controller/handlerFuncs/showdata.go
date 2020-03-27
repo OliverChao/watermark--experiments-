@@ -11,44 +11,40 @@ import (
 )
 
 func ShowData(c *gin.Context) {
-	offsetS := c.DefaultQuery("offset", "1")
+	offsetS := c.DefaultQuery("offset", "0")
 	countS := c.DefaultQuery("count", "500")
-	back := c.DefaultQuery("data", "source")
 	offsetI, _ := strconv.Atoi(offsetS)
 	countI, _ := strconv.Atoi(countS)
-	if offsetI < 1 {
+	if offsetI < 0 {
 		logrus.Error("invalid offset, set offset=1")
-		offsetI = 1
+		offsetI = 0
 	}
 	if countI < 1 {
 		logrus.Error("invalid count, set count=100")
-		countI = 100
+		countI = 500
 	}
 
 	var data []*model.Student
-	switch back {
-	case "source":
-		data = service.SourceCache.GetSourceData()[offsetI-1 : offsetI+countI-1]
-	case "back":
-		if !service.MarkedCache.IsCached() {
-			c.String(200, "have not inserted watermark")
-			return
-		}
-		data = service.MarkedCache.GetSourceData()[offsetI-1 : offsetI+countI-1]
+	data = service.SourceCache.GetSourceData()[offsetI : offsetI+countI]
+	var tables []string
+
+	switch service.MarkedCache.IsCached() {
+	case true:
+		tables = []string{"students", "student_backs"}
+	case false:
+		tables = []string{"students"}
 	}
-	//c.JSON(200, map[string]interface{}{
-	//	"data": data,
-	//})
+
 	c.HTML(http.StatusOK, "showdata.html", gin.H{
 		"data":  data,
-		"table": []string{"students"},
+		"table": tables,
 	})
 }
 
 func ShowDataPost(c *gin.Context) {
 	offsetS := c.DefaultPostForm("offset", "0")
 	countS := c.DefaultPostForm("count", "500")
-	back := c.DefaultPostForm("data", "source")
+	table := c.DefaultPostForm("table", "students")
 	offsetI, _ := strconv.Atoi(offsetS)
 	countI, _ := strconv.Atoi(countS)
 
@@ -67,19 +63,18 @@ func ShowDataPost(c *gin.Context) {
 	}
 
 	var data []*model.Student
-	switch back {
-	case "source":
+
+	switch table {
+	case "students":
 		data = service.SourceCache.GetSourceData()[offsetI : offsetI+countI]
-	case "back":
+	case "student_backs":
 		if !service.MarkedCache.IsCached() {
 			c.String(200, "have not inserted watermark")
 			return
 		}
-		data = service.MarkedCache.GetSourceData()[offsetI-1 : offsetI+countI]
+		data = service.MarkedCache.GetSourceData()[offsetI : offsetI+countI]
 	}
-	//c.JSON(200, map[string]interface{}{
-	//	"data": data,
-	//})
+
 	var tables []string
 	switch service.MarkedCache.IsCached() {
 	case true:

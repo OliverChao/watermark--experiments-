@@ -79,7 +79,10 @@ func MapRoutes() *gin.Engine {
 	exp.GET("/backup", handlerFuncs.BackupData)
 
 	exp.GET("/resumption", func(c *gin.Context) {
-		service.ExchangeTableName()
+		if !service.ResumeController.IsResumed() {
+			service.ExchangeTableName()
+			service.ResumeController.EnResumed()
+		}
 		c.String(200, "resume successfully...")
 	})
 

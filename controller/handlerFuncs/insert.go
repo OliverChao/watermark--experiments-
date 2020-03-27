@@ -61,6 +61,7 @@ func InsertWaterMarking(ctx *gin.Context) {
 	<-done
 	span := time.Since(start)
 
+	service.ResumeController.UnResumed()
 	logrus.Info("total time ", span)
 	spanS := fmt.Sprintf("%v", span)
 	ctx.JSON(200, map[string]interface{}{
