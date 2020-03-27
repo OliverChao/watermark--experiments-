@@ -49,19 +49,46 @@ func MapRoutes() *gin.Engine {
 		ctx.String(http.StatusOK, "test token ... ")
 	})
 
+	exp.GET("/test", func(c *gin.Context) {
+		table := []string{"students", "student_backs"}
+		c.HTML(200, "insert.html", gin.H{
+			"table": table,
+		})
+	})
+	exp.POST("/test", func(c *gin.Context) {
+		table := c.PostForm("table")
+		key := c.PostForm("key")
+		gamma := c.PostForm("gamma")
+		c.String(200, "%v %v %v", table, key, gamma)
+	})
+
 	exp.GET("/data", func(c *gin.Context) {
 		offsetS := c.DefaultQuery("offset", "0")
 		countS := c.DefaultQuery("count", "500")
 		offsetI, _ := strconv.Atoi(offsetS)
 		countI, _ := strconv.Atoi(countS)
+
 		c.JSON(200, map[string]int{
 			"offset": offsetI,
 			"count":  countI,
 		})
+
+	})
+
+	exp.GET("/insert", func(c *gin.Context) {
+		var table []string
+		switch service.MarkedCache.IsCached() {
+		case true:
+			table = []string{"students", "student_backs"}
+		case false:
+			table = []string{"students"}
+		}
+		c.HTML(200, "insert.html", gin.H{
+			"table": table,
+		})
 	})
 
 	exp.POST("/insert", handlerFuncs.InsertWaterMarking)
-	exp.GET("/insert", handlerFuncs.InsertWaterMarking)
 	exp.GET("/backup", handlerFuncs.BackupData)
 
 	exp.GET("/resumption", func(c *gin.Context) {

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insert</title>
+
+{{/*    <link rel="stylesheet" type="text/css" href="../pan/css/login.css">*/}}
+</head>
+<body>
+<form action="" method="post">
+    <label>table:</label>
+    <select name="table" id="table">
+
+        {{range $index,$elm := .table}}
+            <option value="{{$elm}}">{{$elm}}</option>
+        {{end}}
+
+    </select>
+    <br>
+    <label>key:</label>
+    <input type="password" class="text" name="key"/>
+    <br>
+    <label>gamma(控制水印比例):</label>
+    <input type="text" class="text" name="gamma" value="2"/>
+    <br>
+    <label>nu(控制属性个数):</label>
+    <input type="text" class="text" name="nu" value="5"/>
+    <br>
+    <label>xi(控制可修改比特个数):</label>
+    <input type="text" class="text" name="xi" value="3"/>
+    <br>
+    <label>submit:</label>
+    <input type="submit" class="submit" value="submit"/>
+
+</form>
+</body>
+</html>

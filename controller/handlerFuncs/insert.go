@@ -7,12 +7,34 @@ import (
 	"WaterMasking/util"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/sirupsen/logrus"
+	"math"
 	"sync"
 	"time"
 )
 
+type insertParameters struct {
+	Table string `form:"table" json:"table" binding:"required"`
+	Key   string `form:"key" json:"key" binding:"required"`
+	Gamma uint   `form:"gamma" json:"gamma" binding:"required"`
+	Nu    uint   `form:"nu" json:"nu" binding:"required"`
+	Xi    uint   `form:"xi" json:"xi" binding:"required"`
+}
+
 func InsertWaterMarking(ctx *gin.Context) {
+
+	//table := ctx.DefaultPostForm()
+	var params insertParameters
+	if err := ctx.MustBindWith(&params, binding.FormPost); err != nil {
+		ctx.String(200, err.Error())
+		return
+	}
+	//ctx.JSON(200, params)
+	//return
+	logrus.Info(params)
+	updateConfByInserted(params)
+
 	ch := make(chan *util.ChanMetaData, 50)
 	done := make(chan struct{})
 	var wg = sync.WaitGroup{}
@@ -45,10 +67,18 @@ func InsertWaterMarking(ctx *gin.Context) {
 		"total_time": spanS,
 	})
 
-	switch service.MarkedCache.IsCached() {
-	case true:
-	case false:
-		service.MarkedCache.EnCached(service.Student.GetAllData())
+	service.MarkedCache.EnCached(service.Student.GetAllData())
+
+}
+
+func updateConfByInserted(i insertParameters) {
+	model.Conf.Gamma = i.Gamma
+	defaultFileds := []string{"Score1", "Score2", "Score3", "Score4", "Score5"}
+	if i.Nu > 0 {
+		model.Conf.Nu = uint(math.Min(float64(5), float64(i.Nu)))
 	}
+	model.Conf.FiledNames = defaultFileds[:model.Conf.Nu]
+	model.Conf.Xi = i.Xi
+	model.Conf.Key = i.Key
 
 }
