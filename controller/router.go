@@ -8,7 +8,6 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -40,7 +39,6 @@ func MapRoutes() *gin.Engine {
 		data := map[string]interface{}{}
 		data["some_data"] = service.SourceCache.GetSourceData()[:10]
 		result.Data = data
-
 	})
 
 	exp := engine.Group("/exp")
@@ -50,30 +48,19 @@ func MapRoutes() *gin.Engine {
 	})
 
 	exp.GET("/test", func(c *gin.Context) {
-		table := []string{"students", "student_backs"}
-		c.HTML(200, "insert.html", gin.H{
-			"table": table,
+		c.HTML(200, "showdataHint.html", gin.H{
+			"total": 100000,
 		})
+		//c.String(200, "<h1>oliver<h1>")
+		//c.HTML(200,"")
 	})
+
 	exp.POST("/test", func(c *gin.Context) {
-		table := c.PostForm("table")
-		key := c.PostForm("key")
-		gamma := c.PostForm("gamma")
-		c.String(200, "%v %v %v", table, key, gamma)
+		c.String(200, "<h1>oliver<h1>")
 	})
 
-	exp.GET("/data", func(c *gin.Context) {
-		offsetS := c.DefaultQuery("offset", "0")
-		countS := c.DefaultQuery("count", "500")
-		offsetI, _ := strconv.Atoi(offsetS)
-		countI, _ := strconv.Atoi(countS)
-
-		c.JSON(200, map[string]int{
-			"offset": offsetI,
-			"count":  countI,
-		})
-
-	})
+	exp.GET("/data", handlerFuncs.ShowData)
+	exp.POST("/data", handlerFuncs.ShowDataPost)
 
 	exp.GET("/insert", func(c *gin.Context) {
 		var table []string
@@ -87,8 +74,8 @@ func MapRoutes() *gin.Engine {
 			"table": table,
 		})
 	})
-
 	exp.POST("/insert", handlerFuncs.InsertWaterMarking)
+
 	exp.GET("/backup", handlerFuncs.BackupData)
 
 	exp.GET("/resumption", func(c *gin.Context) {

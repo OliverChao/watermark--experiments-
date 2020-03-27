@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ShowData</title>
+</head>
+<body>
+{{/*{{range $index,$elm :=  .data}}*/}}
+{{/*    <div>{{$elm}}</div>*/}}
+{{/*{{end}}*/}}
+
+<form action="" method="post">
+
+    <br>
+    <p>offset:</p>
+    <input type="text" class="text" name="offset"/>
+    <br>
+    <p>count</p>
+    <input type="text" class="text" name="count" value="500"/>
+    <br>
+
+    <p>table</p>
+    <select name="table" id="table">
+        {{range $index,$elm := .table}}
+            <option value="{{$elm}}">{{$elm}}</option>
+        {{end}}
+    </select>
+
+    <label>submit:</label>
+    <input type="submit" class="submit" value="submit"/>
+</form>
+
+<table border="1">
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>school</th>
+        <th>score1</th>
+        <th>score2</th>
+        <th>score3</th>
+        <th>score4</th>
+        <th>score5</th>
+    </tr>
+    {{range $index,$elm :=  .data}}
+    <tr>
+        <td>{{$elm.ID}}</td>
+        <td>{{$elm.Name}}</td>
+        <td>{{$elm.School}}</td>
+        <td>{{$elm.Score1}}</td>
+        <td>{{$elm.Score2}}</td>
+        <td>{{$elm.Score3}}</td>
+        <td>{{$elm.Score4}}</td>
+        <td>{{$elm.Score5}}</td>
+    </tr>
+    {{end}}
+
+</table>
+
+</form>
+</body>
+</html>
