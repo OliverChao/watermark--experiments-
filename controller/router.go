@@ -7,6 +7,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"net/http"
 	"strings"
 )
@@ -32,6 +33,20 @@ func MapRoutes() *gin.Engine {
 		ctx.HTML(http.StatusOK, "login.html", gin.H{})
 	})
 	engine.POST("/", handlerFuncs.Login)
+	engine.GET("/logout", func(c *gin.Context) {
+		session := sessions.Default(c)
+		session.Options(sessions.Options{
+			Path:   "/",
+			MaxAge: -1,
+		})
+		session.Clear()
+		if err := session.Save(); nil != err {
+			logrus.Errorf("saves session failed: " + err.Error())
+		}
+
+		c.Redirect(http.StatusSeeOther, "http://127.0.0.1:8080/")
+		c.Abort()
+	})
 
 	engine.GET("/test", func(c *gin.Context) {
 		result := gulu.Ret.NewResult()
@@ -41,6 +56,7 @@ func MapRoutes() *gin.Engine {
 		result.Data = data
 	})
 
+	// exp remains functional model
 	exp := engine.Group("/exp")
 	exp.Use(LoginCheck)
 	exp.GET("/", func(ctx *gin.Context) {
@@ -100,8 +116,18 @@ func MapRoutes() *gin.Engine {
 	})
 
 	exp.POST("/verify", handlerFuncs.VerifyWaterMarking)
-	alg := engine.Group("/algorithms")
-	alg.Use(LoginCheck)
 
+	//att is attacking model
+	att := engine.Group("/attack")
+	att.Use(LoginCheck)
+
+	att.GET("/delete", handlerFuncs.DeleteAttack)
+
+	att.GET("/addmore", handlerFuncs.AddMoreAttack)
+
+	att.GET("/reverse", func(c *gin.Context) {
+		c.HTML(200, "reverse_attack.html", gin.H{})
+	})
+	att.POST("/reverse", handlerFuncs.ReverseAttack)
 	return engine
 }

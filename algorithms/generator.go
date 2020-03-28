@@ -124,6 +124,7 @@ func cmpOldAndNew(old float64, bitIndex int, guess byte) (bool, float64) {
 
 	frombits := math.Float64frombits(parseUint)
 	return false, frombits
+
 }
 
 func getHashSum(h hash.Hash, bs ...[]byte) []byte {
