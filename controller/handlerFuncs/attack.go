@@ -108,7 +108,7 @@ func ReverseAttack(ctx *gin.Context) {
 	M := int(math.Min(float64(MI), float64(len(baseData))))
 
 	attackNum := int(float64(M)*(1-alpha)) + 1
-	data := genBackData(baseData, attackNum)
+	data := genBackData(baseData[:M], attackNum)
 
 	ret := _verify(data)
 
